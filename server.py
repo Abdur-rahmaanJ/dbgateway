@@ -1,12 +1,26 @@
 import socket
 import threading
 
+tables = {}
+
+def create_table(tables, tablename):
+    tables[tablename] = {}
+    
+def parse_sql(string):
+    words = string.split()
+    if words[0] == 'create':
+        if words[1] == 'table':
+             create_table(tables, words[2])
+    
+            
+
 
 def handle_client(client_socket, addr):
     try:
         while True:
             # receive and print client messages
             request = client_socket.recv(1024).decode("utf-8")
+            parse_sql(request)
             if request.lower() == "close":
                 client_socket.send("closed".encode("utf-8"))
                 break
