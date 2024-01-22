@@ -12,10 +12,14 @@ def parse_sql(string):
         if words[1] == 'table':
              create_table(tables, words[2])
     
-            
+connection_pool = {
+}
+
 
 
 def handle_client(client_socket, addr):
+    ip = addr[0]
+    port = addr[1]
     try:
         while True:
             # receive and print client messages
@@ -32,7 +36,8 @@ def handle_client(client_socket, addr):
         print(f"Error when hanlding client: {e}")
     finally:
         client_socket.close()
-        print(f"Connection to client ({addr[0]}:{addr[1]}) closed")
+        del connection_pool[f'{ip}:{port}']
+        print(f"Connection to client ({ip}:{port}) closed")
 
 
 def run_server():
@@ -50,7 +55,10 @@ def run_server():
         while True:
             # accept a client connection
             client_socket, addr = server.accept()
-            print(f"Accepted connection from {addr[0]}:{addr[1]}")
+            client_ip = addr[0]
+            client_port = addr[1]
+            connection_pool[f'{client_ip}:{client_port}'] = {}
+            print(f"Accepted connection from {client_ip}:{client_port}")
             # start a new thread to handle the client
             thread = threading.Thread(target=handle_client, args=(client_socket, addr,))
             thread.start()
